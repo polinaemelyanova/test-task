@@ -1,0 +1,28 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id       Int        @id @default(autoincrement())
+  login         String     @unique(map: "sqlite_autoindex_users_login")
+  password_hash String?
+  first_name    String?
+  last_name     String?
+  sessions      sessions[]
+}
+
+model sessions {
+  session_id  String    @id
+  user_id     Int?
+  name        String?   @default("unknown")
+  token       String?
+  death_date  DateTime?
+  last_update DateTime?
+  users       users?    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}

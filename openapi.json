@@ -1,0 +1,463 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Документация API",
+    "description": "Документация API тестового задания",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/users/login": {
+      "post": {
+        "summary": "Логин",
+        "description": "Аутентификация пользователя по логину и паролю.",
+        "operationId": "login",
+        "tags": [
+          "Пользователи"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "login": {
+                    "type": "string",
+                    "example": "ivanov"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "Pas1234!"
+                  }
+                },
+                "required": [
+                  "login",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "/api/users/login"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "statusMessage": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Не указан логин или пароль пользователя."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Не верный логин или пароль",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "/api/users/login"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "statusMessage": {
+                      "type": "string",
+                      "example": "Forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Не верный логин или пароль."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/logout": {
+      "post": {
+        "summary": "Выход из аккаунта",
+        "description": "Разлогинивает текущего пользователя, удаляет сессию и чистит cookie.",
+        "operationId": "logout",
+        "tags": [
+          "Пользователи"
+        ],
+        "responses": {
+          "204": {
+            "description": "Успешный ответ"
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "summary": "Текущий пользователь",
+        "description": "Аутентификация пользователя по токену.",
+        "operationId": "me",
+        "tags": [
+          "Пользователи"
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          }
+        }
+      }
+    },
+    "/api/users/registration": {
+      "post": {
+        "summary": "Регистрация",
+        "description": "Регистрация пользователя.",
+        "operationId": "registration",
+        "tags": [
+          "Пользователи"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "Иван"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Иванов"
+                  },
+                  "login": {
+                    "type": "string",
+                    "example": "ivanov"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "Pas1234!"
+                  }
+                },
+                "required": [
+                  "login",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Успешный ответ"
+          },
+          "400": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "/api/users/registration"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "statusMessage": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Не указан логин или пароль пользователя."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Логин занят",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "/api/users/registration"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 409
+                    },
+                    "statusMessage": {
+                      "type": "string",
+                      "example": "Conflict"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Логин ivanov уже занят."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/sessions": {
+      "delete": {
+        "summary": "Удаление сессии",
+        "description": "Удаляет сессию текущего пользователя.",
+        "operationId": "deleteSession",
+        "tags": [
+          "Сессии"
+        ],
+        "responses": {
+          "204": {
+            "description": "Успешный ответ"
+          },
+          "400": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "/api/users/sessions"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "statusMessage": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Не указан id сессии."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "description": "Доступ запрещен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "/api/users/sessions"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "statusMessage": {
+                      "type": "string",
+                      "example": "Forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Доступ запрещен."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Список сессий",
+        "description": "Получает список сессий текущего пользователя.",
+        "operationId": "getSessions",
+        "tags": [
+          "Сессии"
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Session"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "login": {
+            "type": "string",
+            "example": "ivanov"
+          },
+          "first_name": {
+            "type": "string",
+            "example": "Иван"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Иванов"
+          }
+        }
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "example": "plih038xsm7w2x09n"
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Firefox (GNU/Linux)"
+          },
+          "death_date": {
+            "type": "date",
+            "example": "2025-04-04T15:35:03.000Z"
+          },
+          "last_update": {
+            "type": "date",
+            "example": "2025-03-05T15:35:03.818Z"
+          }
+        }
+      }
+    },
+    "responses": {
+      "401": {
+        "description": "Пользователь не авторизован",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "example": "/api/..."
+                },
+                "statusCode": {
+                  "type": "integer",
+                  "example": 401
+                },
+                "statusMessage": {
+                  "type": "string",
+                  "example": "Unauthorized"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Пользователь не авторизован."
+                }
+              }
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Недостаточно прав",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "example": "/api/..."
+                },
+                "statusCode": {
+                  "type": "integer",
+                  "example": 403
+                },
+                "statusMessage": {
+                  "type": "string",
+                  "example": "Forbidden"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Недостаточно прав."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
