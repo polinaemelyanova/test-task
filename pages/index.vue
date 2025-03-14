@@ -34,6 +34,7 @@ interface User {
 
 interface Session {
   session_id: string;
+  is_current: boolean;
   name: string;
   last_update: string;
 }
@@ -41,38 +42,46 @@ interface Session {
 const router = useRouter();
 const user = ref<User | null>(null);
 const sessions = ref<Session[]>([]);
+const currentSessionId = ref<string | null>(null);
+
+
+const userOptions = {
+  method: 'GET',
+  url: 'http://localhost:3000/api/users/me'
+};
+
+const sessionOptions = {
+  method: 'GET',
+  url: '/api/users/sessions'
+};
 
 onMounted(async () => {
   try {
-    const userResponse = await axios.get<User>('/api/users/me');
+    const userResponse = await axios.request<User>(userOptions);
     user.value = userResponse.data;
+    console.log(userResponse.data);
 
-    const sessionsResponse = await axios.get<Session[]>('/api/users/sessions');
+    const sessionsResponse = await axios.request<Session[]>(sessionOptions);
     sessions.value = sessionsResponse.data;
+    console.log(sessionsResponse.data);
+    currentSessionId.value = localStorage.getItem('session_id');
+    console.log(`Current session ID on mount: ${currentSessionId.value}`);
 
     console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
-  } catch (error) {
+  } catch (error: any) {
+    console.error(error);
+    console.error('Ответ сервера:', error.response?.data); // Выводим ответ сервера
     handleError(error);
   }
 });
 
+
 const deleteSession = async (sessionId: string) => {
   try {
     console.log(`Attempting to delete session with ID: ${sessionId}`);
-    await axios.delete(`/api/users/sessions?session_id=${sessionId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    });
+    await axios.delete(`/api/users/sessions?session_id=${sessionId}`);
     console.log(`Session with ID: ${sessionId} deleted successfully`);
-    // Если удаляется текущая сессия, выполняем logout
-    if (sessionId === getCurrentSessionId()) {
-      console.log(`Current session ID (${getCurrentSessionId()}) matches deleted session ID. Logging out.`);
-      await logout();
-    } else {
-      sessions.value = sessions.value.filter(session => session.session_id !== sessionId);
-    }
+    sessions.value = sessions.value.filter(session => session.session_id !== sessionId);
   } catch (error) {
     handleError(error);
   }

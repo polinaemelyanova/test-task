@@ -33,15 +33,24 @@ const form = ref<Form>({
   password: ''
 });
 
+const options = {
+  method: 'POST',
+  url: '/api/users/registration',
+  headers: {'Content-Type': 'application/json'},
+  data: form.value
+};
+
 const register = async () => {
   try {
-    await axios.post('/api/users/registration', form.value);
+    const { data } = await axios.request(options);
     router.push('/login');
   } catch (error: any) {
     console.error('Ошибка при регистрации:', error);
     alert(`Ошибка при регистрации: ${error.response?.data?.message || error.message}`);
   }
 };
+
+
 </script>
 
 <style scoped lang="scss">

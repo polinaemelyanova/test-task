@@ -27,10 +27,19 @@ const form = ref<Form>({
   password: ''
 });
 
+
+const loginOptions = {
+  method: 'POST',
+  url: '/api/users/login',
+  headers: {'Content-Type': 'application/json'},
+  data: form.value
+};
+
 const login = async () => {
   try {
-    const response = await axios.post('/api/users/login', form.value);
+    const response = await axios.request(loginOptions);
     console.log('Успешный вход:', response.data); // Отладочная информация
+
     // Сохраняем authToken и session_id в localStorage
     localStorage.setItem('authToken', response.data.authToken);
     localStorage.setItem('session_id', response.data.session_id);
