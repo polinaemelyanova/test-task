@@ -6,6 +6,16 @@
 
 <script setup>
 useSeoMeta({
-    title: 'Тесовое задание',
+    title: 'Тестовое задание',
 });
+
 </script>
+
+
+<style lang="scss">
+
+  *{
+    box-sizing: border-box;
+  }
+
+</style>
