@@ -2,13 +2,14 @@
   <div class="container">
     <h1>Главная страница</h1>
     <div v-if="user">
-      <p>Привет, {{ user.first_name }} {{ user.last_name }} ({{ user.login }})!</p>
+      <p>Добро пожаловать, {{ user.first_name }} {{ user.last_name }} ({{ user.login }})!</p>
       <button @click="logout" class="btn-logout">Выход из аккаунта</button>
       <h2>Ваши сессии:</h2>
       <ul class="session-list">
         <li v-for="session in sessions" :key="session.session_id" class="session-item">
           {{ session.name }} - Последнее обновление: {{ session.last_update }}
-          <button v-if="session.session_id !== currentSessionId" @click="deleteSession(session.session_id)" class="btn-delete">Удалить сессию</button>
+          <span v-if="session.is_current" class="current-session">Текущая сессия</span>
+          <button v-else @click="deleteSession(session.session_id)" class="btn-delete">Удалить сессию</button>
         </li>
       </ul>
     </div>
@@ -40,7 +41,6 @@ interface Session {
 const router = useRouter();
 const user = ref<User | null>(null);
 const sessions = ref<Session[]>([]);
-const currentSessionId = ref<string | null>(null);
 
 onMounted(async () => {
   try {
@@ -50,8 +50,7 @@ onMounted(async () => {
     const sessionsResponse = await axios.get<Session[]>('/api/users/sessions');
     sessions.value = sessionsResponse.data;
 
-    currentSessionId.value = localStorage.getItem('session_id');
-    console.log(`Current session ID on mount: ${currentSessionId.value}`);
+    console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
   } catch (error) {
     handleError(error);
   }
@@ -68,8 +67,8 @@ const deleteSession = async (sessionId: string) => {
     });
     console.log(`Session with ID: ${sessionId} deleted successfully`);
     // Если удаляется текущая сессия, выполняем logout
-    if (sessionId === currentSessionId.value) {
-      console.log(`Current session ID (${currentSessionId.value}) matches deleted session ID. Logging out.`);
+    if (sessionId === getCurrentSessionId()) {
+      console.log(`Current session ID (${getCurrentSessionId()}) matches deleted session ID. Logging out.`);
       await logout();
     } else {
       sessions.value = sessions.value.filter(session => session.session_id !== sessionId);
@@ -102,6 +101,13 @@ const logout = async () => {
   }
 };
 
+const getCurrentSessionId = () => {
+  // Метод для получения текущего session_id (например, из cookies или localStorage)
+  const sessionId = localStorage.getItem('session_id') || '';
+  console.log(`Current session ID: ${sessionId}`);
+  return sessionId;
+};
+
 const handleError = (error: any) => {
   if (error.response) {
     alert(`Ошибка: ${error.response.data.message || 'Произошла ошибка'}`);
@@ -113,13 +119,15 @@ const handleError = (error: any) => {
 </script>
 
 <style scoped lang="scss">
+@use "@/assets/styles/variables" as v;
+
 .container {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
-  background-color: #f9f9f9;
+  background-color: v.$light-background;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px v.$shadow-color;
 }
 
 h1 {
@@ -133,7 +141,7 @@ h1 {
 }
 
 .session-item {
-  background-color: #fff;
+  background-color: white;
   padding: 1rem;
   margin-bottom: 1rem;
   border: 1px solid #ddd;
@@ -143,15 +151,20 @@ h1 {
   align-items: center;
 }
 
+.current-session {
+  color: v.$current-session;
+}
+
 .btn-delete {
-  background-color: #e74c3c;
-  color: #fff;
+  background-color: #e74c3c; // Replace with variable if you have one for this color
+  color: v.$text-color;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
+
   &:hover {
-    background-color: #c0392b;
+    background-color: #c0392b; // Replace with variable if you have one for this color
   }
 }
 
@@ -159,28 +172,31 @@ h1 {
   display: inline-block;
   margin-bottom: 1rem;
   padding: 0.5rem 1rem;
-  color: #fff;
-  background-color: #e67e22;
+  color: v.$text-color;
+  background-color: #e67e22; // Replace with variable if you have one for this color
   border: none;
   border-radius: 4px;
   cursor: pointer;
+
   &:hover {
-    background-color: #d35400;
+    background-color: #d35400; // Replace with variable if you have one for this color
   }
 }
 
 .btn {
   display: inline-block;
   margin-top: 1rem;
+  margin-right: 10px;
   padding: 0.5rem 1rem;
-  color: #fff;
-  background-color: #3498db;
+  color: v.$text-color;
+  background-color: v.$primary-color;
   border: none;
   border-radius: 4px;
   text-decoration: none;
   text-align: center;
+
   &:hover {
-    background-color: #2980b9;
+    background-color: v.$primary-color-darker;
   }
 }
 </style>
