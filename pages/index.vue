@@ -3,17 +3,17 @@
     <h1>Главная страница</h1>
     <div v-if="user">
       <p>Добро пожаловать, {{ user.first_name }} {{ user.last_name }} ({{ user.login }})!</p>
-      <button @click="logout" class="btn-logout">Выход из аккаунта</button>
+      <button @click="logout" class="btn btn-logout">Выход из аккаунта</button>
       <h2>Ваши сессии:</h2>
       <ul class="session-list">
         <li v-for="session in sessions" :key="session.session_id" class="session-item">
           {{ session.name }} - Последнее обновление: {{ session.last_update }}
           <span v-if="session.is_current" class="current-session">Текущая сессия</span>
-          <button v-else @click="deleteSession(session.session_id)" class="btn-delete">Удалить сессию</button>
+          <button v-else @click="deleteSession(session.session_id)" class="btn btn-delete">Удалить сессию</button>
         </li>
       </ul>
     </div>
-    <div v-else>
+    <div v-else class="not-authorized">
       <p>Вы не авторизованы.</p>
       <router-link to="/login" class="btn">Авторизация</router-link>
       <router-link to="/registration" class="btn">Регистрация</router-link>
@@ -102,8 +102,7 @@ onMounted(async () => {
     localStorage.removeItem('session_id');
     user.value = null;
     sessions.value = [];
-    router.push('/login');
-    alert('Сессия завершена');
+    router.push('/');
   }
 });
 
@@ -166,20 +165,8 @@ const handleError = (error: any) => {
 
 <style scoped lang="scss">
 @use "@/assets/styles/variables" as v;
+@use "@/assets/styles/main";
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: v.$light-background;
-  border-radius: 8px;
-  box-shadow: 0 0 10px v.$shadow-color;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 2rem;
-}
 
 .session-list {
   list-style: none;
@@ -201,48 +188,13 @@ h1 {
   color: v.$current-session;
 }
 
-.btn-delete {
-  background-color: #e74c3c; // Replace with variable if you have one for this color
-  color: v.$text-color;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #c0392b; // Replace with variable if you have one for this color
-  }
-}
-
-.btn-logout {
-  display: inline-block;
-  margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
-  color: v.$text-color;
-  background-color: #e67e22; // Replace with variable if you have one for this color
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #d35400; // Replace with variable if you have one for this color
-  }
-}
-
 .btn {
+  width: 50%;
   display: inline-block;
-  margin-top: 1rem;
-  margin-right: 10px;
-  padding: 0.5rem 1rem;
-  color: v.$text-color;
-  background-color: v.$primary-color;
-  border: none;
-  border-radius: 4px;
-  text-decoration: none;
-  text-align: center;
-
-  &:hover {
-    background-color: v.$primary-color-darker;
-  }
+}
+.not-authorized {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

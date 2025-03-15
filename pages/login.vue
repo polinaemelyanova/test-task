@@ -81,41 +81,14 @@ const login = async () => {
 
 <style scoped lang="scss">
 @use "@/assets/styles/variables" as v;
+@use "@/assets/styles/main";
 
 .container {
   max-width: 400px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: v.$light-background;
-  border-radius: 8px;
-  box-shadow: 0 0 10px v.$shadow-color;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 2rem;
 }
 
 .btn {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  color: v.$text-color;
-  background-color: v.$primary-color;
-  border: none;
-  border-radius: 4px;
-  text-align: center;
-  cursor: pointer;
   margin-bottom: 10px;
-
-  &:hover {
-    background-color: v.$primary-color-darker;
-  }
-}
-
-.link {
-  text-decoration: none;
-  color: v.$link-color;
 }
 
 </style>
