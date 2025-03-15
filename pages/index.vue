@@ -103,7 +103,7 @@ onMounted(async () => {
     user.value = null;
     sessions.value = [];
     router.push('/login');
-    await alert('Сессия завершена');
+    alert('Сессия завершена');
   }
 });
 

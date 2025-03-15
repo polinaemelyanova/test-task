@@ -35,18 +35,42 @@ const loginOptions = {
   data: form.value
 };
 
+const isCurrentSession = {
+  sessionId: '',
+}
+
+
 const login = async () => {
   try {
     const response = await axios.request(loginOptions);
     console.log('Успешный вход:', response.data); // Отладочная информация
 
-    // const responeSessions = await axios.request();
 
-    // Сохраняем authToken и session_id в localStorage
-    localStorage.setItem('authToken', response.data.authToken);
-    localStorage.setItem('session_id', response.data.session_id);
-    console.log(localStorage.getItem('authToken'));
-    console.log(localStorage.getItem('session_id'));
+
+    const options = {method: 'GET', url: '/api/users/sessions'};
+
+
+    try {
+      const sessions = await axios.request(options);
+      console.log('Тут дата короче', sessions);
+
+      for (const session of sessions.data) {
+        if (session.is_current) {
+          isCurrentSession.sessionId = session.session_id;
+        }
+
+      }
+
+      // Сохраняем authToken и session_id в localStorage
+      localStorage.setItem('authToken', sessions.data.authToken);
+      localStorage.setItem('session_id', isCurrentSession.sessionId);
+      console.log(localStorage.getItem('authToken'));
+      console.log(localStorage.getItem('session_id'));
+    } catch (error) {
+      console.error('Ошебка', error);
+    }
+
+
     router.push('/');
   } catch (error: any) {
     console.error('Ошибка при авторизации:', error);
