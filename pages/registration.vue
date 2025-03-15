@@ -55,7 +55,7 @@ const register = async () => {
 
 <style scoped lang="scss">
 @use "@/assets/styles/variables" as v;
-@use "@/assets/styles/main";
+@use "@/assets/styles/globals";
 
 .container {
   max-width: 400px;

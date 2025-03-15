@@ -1,0 +1,55 @@
+@use "functions" as *;
+
+$laptop: 1440.98;
+$tablet: 993;
+$mobile: 767.98;
+$mobile-s: 490.98;
+
+@mixin laptop-above {
+  @media (width > rem($laptop)) {
+    @content;
+  }
+}
+
+@mixin laptop {
+  @media (width <= rem($laptop)) {
+    @content;
+  }
+}
+
+@mixin tablet-above {
+  @media (width > rem($tablet)) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (width <= rem($tablet)) {
+    @content;
+  }
+}
+
+@mixin mobile-above {
+  @media (width > rem($mobile)) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (width <= rem($mobile)) {
+    @content;
+  }
+}
+
+@mixin mobile-s-above {
+  @media (width > rem($mobile-s)) {
+    @content;
+  }
+}
+
+@mixin mobile-s {
+  @media (width <= rem($mobile-s)) {
+    @content;
+  }
+}
+

@@ -44,34 +44,6 @@ const user = ref<User | null>(null);
 const sessions = ref<Session[]>([]);
 
 
-// const userOptions = {
-//   method: 'GET',
-//   url: 'http://localhost:3000/api/users/me'
-// };
-//
-// const sessionOptions = {
-//   method: 'GET',
-//   url: '/api/users/sessions'
-// };
-
-// onMounted(async () => {
-//   try {
-//     const userResponse = await axios.request<User>(userOptions);
-//     user.value = userResponse.data;
-//     console.log(userResponse.data);
-//
-//     const sessionsResponse = await axios.request<Session[]>(sessionOptions);
-//     sessions.value = sessionsResponse.data;
-//     console.log(sessionsResponse.data);
-//
-//     console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
-//   } catch (error: any) {
-//     console.error(error);
-//     console.error('Ответ сервера:', error.response?.data); // Выводим ответ сервера
-//     handleError(error);
-//   }
-// });
-
 onMounted(async () => {
   try {
     const authToken = localStorage.getItem('authToken');
@@ -165,7 +137,7 @@ const handleError = (error: any) => {
 
 <style scoped lang="scss">
 @use "@/assets/styles/variables" as v;
-@use "@/assets/styles/main";
+@use "@/assets/styles/globals";
 
 
 .session-list {
