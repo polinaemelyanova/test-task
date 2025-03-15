@@ -40,9 +40,13 @@ const login = async () => {
     const response = await axios.request(loginOptions);
     console.log('Успешный вход:', response.data); // Отладочная информация
 
+    // const responeSessions = await axios.request();
+
     // Сохраняем authToken и session_id в localStorage
     localStorage.setItem('authToken', response.data.authToken);
     localStorage.setItem('session_id', response.data.session_id);
+    console.log(localStorage.getItem('authToken'));
+    console.log(localStorage.getItem('session_id'));
     router.push('/');
   } catch (error: any) {
     console.error('Ошибка при авторизации:', error);

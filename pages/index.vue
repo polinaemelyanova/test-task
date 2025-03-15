@@ -42,36 +42,68 @@ interface Session {
 const router = useRouter();
 const user = ref<User | null>(null);
 const sessions = ref<Session[]>([]);
-const currentSessionId = ref<string | null>(null);
 
 
-const userOptions = {
-  method: 'GET',
-  url: 'http://localhost:3000/api/users/me'
-};
+// const userOptions = {
+//   method: 'GET',
+//   url: 'http://localhost:3000/api/users/me'
+// };
+//
+// const sessionOptions = {
+//   method: 'GET',
+//   url: '/api/users/sessions'
+// };
 
-const sessionOptions = {
-  method: 'GET',
-  url: '/api/users/sessions'
-};
+// onMounted(async () => {
+//   try {
+//     const userResponse = await axios.request<User>(userOptions);
+//     user.value = userResponse.data;
+//     console.log(userResponse.data);
+//
+//     const sessionsResponse = await axios.request<Session[]>(sessionOptions);
+//     sessions.value = sessionsResponse.data;
+//     console.log(sessionsResponse.data);
+//
+//     console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
+//   } catch (error: any) {
+//     console.error(error);
+//     console.error('Ответ сервера:', error.response?.data); // Выводим ответ сервера
+//     handleError(error);
+//   }
+// });
 
 onMounted(async () => {
   try {
-    const userResponse = await axios.request<User>(userOptions);
-    user.value = userResponse.data;
-    console.log(userResponse.data);
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      throw new Error('Пользователь не авторизован.');
+    }
 
-    const sessionsResponse = await axios.request<Session[]>(sessionOptions);
+    // Проверка токена на сервере
+    const userResponse = await axios.get<User>('/api/users/me', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+      },
+    });
+    user.value = userResponse.data;
+
+    // Загрузка сессий
+    const sessionsResponse = await axios.get<Session[]>('/api/users/sessions', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+      },
+    });
     sessions.value = sessionsResponse.data;
-    console.log(sessionsResponse.data);
-    currentSessionId.value = localStorage.getItem('session_id');
-    console.log(`Current session ID on mount: ${currentSessionId.value}`);
 
     console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
-  } catch (error: any) {
-    console.error(error);
-    console.error('Ответ сервера:', error.response?.data); // Выводим ответ сервера
-    handleError(error);
+  } catch (error) {
+    // Если токен недействителен, очистите localStorage и перенаправьте на страницу входа
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('session_id');
+    user.value = null;
+    sessions.value = [];
+    router.push('/login');
+    await alert('Сессия завершена');
   }
 });
 
@@ -79,7 +111,12 @@ onMounted(async () => {
 const deleteSession = async (sessionId: string) => {
   try {
     console.log(`Attempting to delete session with ID: ${sessionId}`);
-    await axios.delete(`/api/users/sessions?session_id=${sessionId}`);
+    await axios.delete(`/api/users/sessions?session_id=${sessionId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      }
+    });
     console.log(`Session with ID: ${sessionId} deleted successfully`);
     sessions.value = sessions.value.filter(session => session.session_id !== sessionId);
   } catch (error) {
