@@ -1,30 +1,35 @@
 <template>
   <div class="container">
     <h1>Главная страница</h1>
-    <div v-if="user">
-      <p>Добро пожаловать, {{ user.first_name }} {{ user.last_name }} ({{ user.login }})!</p>
-      <button @click="logout" class="btn btn-logout">Выход из аккаунта</button>
-      <h2>Ваши сессии:</h2>
-      <ul class="session-list">
-        <li v-for="session in sessions" :key="session.session_id" class="session-item">
-          {{ session.name }} - Последнее обновление: {{ session.last_update }}
-          <span v-if="session.is_current" class="current-session">Текущая сессия</span>
-          <button v-else @click="deleteSession(session.session_id)" class="btn btn-delete">Удалить сессию</button>
-        </li>
-      </ul>
-    </div>
-    <div v-else class="not-authorized">
-      <p>Вы не авторизованы.</p>
-      <router-link to="/login" class="btn">Авторизация</router-link>
-      <router-link to="/registration" class="btn">Регистрация</router-link>
+    <LoadingIndicator v-if="isLoading"/>
+    <div v-else>
+      <div v-if="user">
+        <p>Добро пожаловать, {{ user.first_name }} {{ user.last_name }} ({{ user.login }})!</p>
+        <button @click="logout" class="btn btn-logout">Выход из аккаунта</button>
+        <h2>Ваши сессии:</h2>
+        <ul class="session-list">
+          <li v-for="session in sessions" :key="session.session_id" class="session-item">
+            {{ session.name }} - Последнее обновление: {{ session.last_update }}
+            <span v-if="session.is_current" class="current-session">Текущая сессия</span>
+            <button v-else @click="deleteSession(session.session_id)" class="btn btn-delete">Удалить сессию</button>
+          </li>
+        </ul>
+      </div>
+      <div v-else class="not-authorized">
+        <p>Вы не авторизованы.</p>
+        <router-link to="/login" class="btn">Авторизация</router-link>
+        <router-link to="/registration" class="btn">Регистрация</router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
+import LoadingIndicator from "@/components/LoadingIndicator.vue"
+
 
 interface User {
   first_name: string;
@@ -39,6 +44,7 @@ interface Session {
   last_update: string;
 }
 
+const isLoading = ref<boolean>(true);
 const router = useRouter();
 const user = ref<User | null>(null);
 const sessions = ref<Session[]>([]);
@@ -48,7 +54,7 @@ onMounted(async () => {
   try {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      throw new Error('Пользователь не авторизован.');
+      console.log('Пользователь не авторизован.');
     }
 
     // Проверка токена на сервере
@@ -75,6 +81,8 @@ onMounted(async () => {
     user.value = null;
     sessions.value = [];
     router.push('/');
+  } finally {
+    isLoading.value = false;
   }
 });
 
@@ -125,11 +133,16 @@ const getCurrentSessionId = () => {
   return sessionId;
 };
 
-const handleError = (error: any) => {
-  if (error.response) {
-    alert(`Ошибка: ${error.response.data.message || 'Произошла ошибка'}`);
-  } else {
+const handleError = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    // Ошибка от axios
+    alert(`Ошибка: ${error.response?.data?.message || 'Произошла ошибка'}`);
+  } else if (error instanceof Error) {
+    // Ошибка JavaScript (например, TypeError, SyntaxError)
     alert(`Ошибка: ${error.message || 'Произошла ошибка'}`);
+  } else {
+    // Неизвестная ошибка
+    alert('Произошла неизвестная ошибка');
   }
   console.error('Error:', error);
 };
@@ -164,6 +177,7 @@ const handleError = (error: any) => {
   width: 50%;
   display: inline-block;
 }
+
 .not-authorized {
   display: flex;
   flex-direction: column;
