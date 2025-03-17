@@ -52,7 +52,7 @@ const login = async () => {
 
     try {
       const sessions = await axios.request(options);
-      console.log('Тут дата короче', sessions);
+      console.log('Session data: ', sessions);
 
       for (const session of sessions.data) {
         if (session.is_current) {
@@ -67,9 +67,8 @@ const login = async () => {
       console.log(localStorage.getItem('authToken'));
       console.log(localStorage.getItem('session_id'));
     } catch (error) {
-      console.error('Ошебка', error);
+      console.error('Ошибка', error);
     }
-
 
     router.push('/');
   } catch (error: any) {

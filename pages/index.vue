@@ -10,8 +10,10 @@
         <ul class="session-list">
           <li v-for="session in sessions" :key="session.session_id" class="session-item">
             {{ session.name }} - Последнее обновление: {{ session.last_update }}
-            <span v-if="session.is_current" class="current-session">Текущая сессия</span>
-            <button v-else @click="deleteSession(session.session_id)" class="btn btn-delete">Удалить сессию</button>
+            <div class="session-action">
+              <span v-if="session.is_current" class="current-session">Текущая сессия</span>
+              <button v-else @click="deleteSession(session.session_id)" class="btn btn-delete">Удалить сессию</button>
+            </div>
           </li>
         </ul>
       </div>
@@ -76,6 +78,7 @@ onMounted(async () => {
     console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
   } catch (error) {
     // Если токен недействителен, очистите localStorage и перенаправьте на страницу входа
+    console.log("Token is not valid: ", error);
     localStorage.removeItem('authToken');
     localStorage.removeItem('session_id');
     user.value = null;
@@ -151,7 +154,7 @@ const handleError = (error: unknown) => {
 <style scoped lang="scss">
 @use "@/assets/styles/variables" as v;
 @use "@/assets/styles/globals";
-
+@use "@/assets/styles/helpers/media" as *;
 
 .session-list {
   list-style: none;
@@ -169,13 +172,39 @@ const handleError = (error: unknown) => {
   align-items: center;
 }
 
+.session-action {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* Выравниваем элементы справа */
+  margin-left: 5px;
+  text-align: center;
+}
+
 .current-session {
   color: v.$current-session;
+  font-size: 14px;
+  margin-right: 1rem; /* Отступ между надписью и кнопкой */
 }
 
 .btn {
-  width: 50%;
+  width: auto; /* Ширина кнопки по содержимому */
   display: inline-block;
+}
+
+.btn-delete {
+  background-color: v.$red;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  display: inline-block;
+  min-width: 150px;
+
+  @include mobile {
+    min-width: 80px;
+  }
+
+  &:hover {
+    background-color: v.$red-darker;
+  }
 }
 
 .not-authorized {

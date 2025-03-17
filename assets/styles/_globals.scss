@@ -1,12 +1,29 @@
 @use "variables" as v;
 @use "helpers/media" as *;
 
+@font-face {
+  font-family: 'Montserrat-Bold';
+  src: url("../fonts/Montserrat-Bold.ttf") format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat-Medium';
+  src: url("../fonts/Montserrat-Medium.ttf") format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   transition: all 0.2s ease;
+  font-family: 'Montserrat-Bold', sans-serif;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem;
   background-color: v.$light-background;
@@ -30,6 +47,14 @@ h1 {
   }
 }
 
+p {
+  margin-bottom: 2rem;
+}
+
+label, p, input[type=text], .link, li {
+  font-family: 'Montserrat-Medium', sans-serif;
+}
+
 .btn {
   display: block;
   width: 100%;
@@ -41,7 +66,6 @@ h1 {
   text-align: center;
   cursor: pointer;
   text-decoration: none;
-  margin-right: 1rem;
   margin-bottom: 10px;
 
   &:hover {

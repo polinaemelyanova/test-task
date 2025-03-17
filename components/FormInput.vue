@@ -33,6 +33,8 @@ const updateValue = (event: Event) => {
 </script>
 
 <style scoped>
+@use "@/assets/styles/globals";
+
 .form-group {
   margin-bottom: 1rem;
 }
@@ -40,7 +42,6 @@ const updateValue = (event: Event) => {
 label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: bold;
 }
 
 input {
