@@ -54,32 +54,23 @@ const sessions = ref<Session[]>([]);
 
 onMounted(async () => {
   try {
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
+    const authSession = localStorage.getItem('session_id');
+    if (!authSession) {
       console.log('Пользователь не авторизован.');
     }
 
     // Проверка токена на сервере
-    const userResponse = await axios.get<User>('/api/users/me', {
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-      },
-    });
+    const userResponse = await axios.get<User>('/api/users/me');
     user.value = userResponse.data;
 
     // Загрузка сессий
-    const sessionsResponse = await axios.get<Session[]>('/api/users/sessions', {
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-      },
-    });
+    const sessionsResponse = await axios.get<Session[]>('/api/users/sessions');
     sessions.value = sessionsResponse.data;
 
     console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
   } catch (error) {
-    // Если токен недействителен, очистите localStorage и перенаправьте на страницу входа
-    console.log("Token is not valid: ", error);
-    localStorage.removeItem('authToken');
+    // Если сессия недействителена, очищается localStorage и перенаправляет на главную страницу
+    console.log("Session is not valid: ", error);
     localStorage.removeItem('session_id');
     user.value = null;
     sessions.value = [];
@@ -93,12 +84,7 @@ onMounted(async () => {
 const deleteSession = async (sessionId: string) => {
   try {
     console.log(`Attempting to delete session with ID: ${sessionId}`);
-    await axios.delete(`/api/users/sessions?session_id=${sessionId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    });
+    await axios.delete(`/api/users/sessions?session_id=${sessionId}`);
     console.log(`Session with ID: ${sessionId} deleted successfully`);
     sessions.value = sessions.value.filter(session => session.session_id !== sessionId);
   } catch (error) {
@@ -110,17 +96,12 @@ const logout = async () => {
   console.log('Logging out...');
   const options = {
     method: 'POST',
-    url: '/api/users/logout',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-    }
+    url: '/api/users/logout'
   };
   try {
     await axios.request(options);
     user.value = null;
     sessions.value = [];
-    localStorage.removeItem('authToken'); // удаление токена после выхода
     localStorage.removeItem('session_id'); // удаление session_id после выхода
     console.log('Logged out successfully. Redirecting to login page.');
     router.push('/login');

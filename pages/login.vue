@@ -32,7 +32,7 @@ const loginOptions = {
   method: 'POST',
   url: '/api/users/login',
   headers: {'Content-Type': 'application/json'},
-  data: form.value
+  data: form.value,
 };
 
 const isCurrentSession = {
@@ -61,10 +61,8 @@ const login = async () => {
 
       }
 
-      // Сохраняем authToken и session_id в localStorage
-      localStorage.setItem('authToken', sessions.data.authToken);
+      // Сохраняем session_id в localStorage
       localStorage.setItem('session_id', isCurrentSession.sessionId);
-      console.log(localStorage.getItem('authToken'));
       console.log(localStorage.getItem('session_id'));
     } catch (error) {
       console.error('Ошибка', error);
