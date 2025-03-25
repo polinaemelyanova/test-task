@@ -11,64 +11,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
 import FormInput from '@/components/FormInput.vue';
+
+definePageMeta({
+  middleware: "auth",
+})
 
 interface Form {
   login: string;
   password: string;
 }
 
-const router = useRouter();
 const form = ref<Form>({
   login: '',
   password: ''
 });
 
 
-const loginOptions = {
-  method: 'POST',
-  url: '/api/users/login',
-  headers: {'Content-Type': 'application/json'},
-  data: form.value,
-};
-
-const isCurrentSession = {
-  sessionId: '',
-}
-
-
 const login = async () => {
   try {
-    const response = await axios.request(loginOptions);
-    console.log('Успешный вход:', response.data); // Отладочная информация
-
-
-
-    const options = {method: 'GET', url: '/api/users/sessions'};
-
+    const response = await $fetch('/api/users/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: form.value
+    });
+    console.log('Успешный вход:', response); // Отладочная информация
 
     try {
-      const sessions = await axios.request(options);
+      const sessions = await $fetch('/api/users/sessions');
       console.log('Session data: ', sessions);
 
-      for (const session of sessions.data) {
-        if (session.is_current) {
-          isCurrentSession.sessionId = session.session_id;
-        }
-
+      const currentSession = sessions.find((session: any) => session.is_current);
+      if (currentSession) {
+        localStorage.setItem('session_id', currentSession.session_id);
+        console.log('Current session ID:', localStorage.getItem('session_id'));
       }
 
-      // Сохраняем session_id в localStorage
-      localStorage.setItem('session_id', isCurrentSession.sessionId);
-      console.log(localStorage.getItem('session_id'));
     } catch (error) {
       console.error('Ошибка', error);
     }
 
-    router.push('/');
+    navigateTo('/')
   } catch (error: any) {
     console.error('Ошибка при авторизации:', error);
     alert(`Ошибка при авторизации: ${error.response?.data?.message || error.message}`);

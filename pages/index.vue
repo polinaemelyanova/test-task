@@ -27,9 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted} from 'vue';
-import axios from 'axios';
-import {useRouter} from 'vue-router';
 import LoadingIndicator from "@/components/LoadingIndicator.vue"
 
 
@@ -47,44 +44,45 @@ interface Session {
 }
 
 const isLoading = ref<boolean>(true);
-const router = useRouter();
 const user = ref<User | null>(null);
 const sessions = ref<Session[]>([]);
 
 
-onMounted(async () => {
+// Загрузка данных
+const loadData = async () => {
   try {
-    const authSession = localStorage.getItem('session_id');
-    if (!authSession) {
-      console.log('Пользователь не авторизован.');
-    }
+    // const sessionId = localStorage.getItem('session_id');
+    // if (!sessionId) {
+    //   return console.log('Пользователь не авторизован.');
+    // }
 
-    // Проверка токена на сервере
-    const userResponse = await axios.get<User>('/api/users/me');
-    user.value = userResponse.data;
+    const userResponse = await $fetch('/api/users/me')
+    user.value = userResponse
 
     // Загрузка сессий
-    const sessionsResponse = await axios.get<Session[]>('/api/users/sessions');
-    sessions.value = sessionsResponse.data;
+    const sessionsResponse = await $fetch('/api/users/sessions')
+    sessions.value = sessionsResponse
 
-    console.log(`Current session ID on mount: ${getCurrentSessionId()}`);
   } catch (error) {
     // Если сессия недействителена, очищается localStorage и перенаправляет на главную страницу
     console.log("Session is not valid: ", error);
     localStorage.removeItem('session_id');
     user.value = null;
     sessions.value = [];
-    router.push('/');
+    navigateTo('/login');
+    handleError(error);
   } finally {
     isLoading.value = false;
   }
-});
-
+};
 
 const deleteSession = async (sessionId: string) => {
   try {
     console.log(`Attempting to delete session with ID: ${sessionId}`);
-    await axios.delete(`/api/users/sessions?session_id=${sessionId}`);
+    await $fetch(`/api/users/sessions?session_id=${sessionId}`, {
+      method: 'DELETE',
+    });
+
     console.log(`Session with ID: ${sessionId} deleted successfully`);
     sessions.value = sessions.value.filter(session => session.session_id !== sessionId);
   } catch (error) {
@@ -94,17 +92,17 @@ const deleteSession = async (sessionId: string) => {
 
 const logout = async () => {
   console.log('Logging out...');
-  const options = {
-    method: 'POST',
-    url: '/api/users/logout'
-  };
+
   try {
-    await axios.request(options);
+    await $fetch('api/users/logout', {
+      method: 'POST'
+    });
+
     user.value = null;
     sessions.value = [];
     localStorage.removeItem('session_id'); // удаление session_id после выхода
     console.log('Logged out successfully. Redirecting to login page.');
-    router.push('/login');
+    navigateTo('/login');
   } catch (error) {
     handleError(error);
   }
@@ -118,18 +116,14 @@ const getCurrentSessionId = () => {
 };
 
 const handleError = (error: unknown) => {
-  if (axios.isAxiosError(error)) {
-    // Ошибка от axios
-    alert(`Ошибка: ${error.response?.data?.message || 'Произошла ошибка'}`);
-  } else if (error instanceof Error) {
-    // Ошибка JavaScript (например, TypeError, SyntaxError)
-    alert(`Ошибка: ${error.message || 'Произошла ошибка'}`);
-  } else {
-    // Неизвестная ошибка
-    alert('Произошла неизвестная ошибка');
-  }
-  console.error('Error:', error);
+  const message = error instanceof Error ? error.message : 'Произошла ошибка';
+  alert(`Ошибка: ${message}`);
+  console.error(error);
 };
+
+
+onMounted(loadData);
+
 </script>
 
 <style scoped lang="scss">

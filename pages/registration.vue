@@ -13,9 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
 import FormInput from '@/components/FormInput.vue';
 
 interface Form {
@@ -25,7 +22,6 @@ interface Form {
   password: string;
 }
 
-const router = useRouter();
 const form = ref<Form>({
   first_name: '',
   last_name: '',
@@ -33,17 +29,20 @@ const form = ref<Form>({
   password: ''
 });
 
-const options = {
-  method: 'POST',
-  url: '/api/users/registration',
-  headers: {'Content-Type': 'application/json'},
-  data: form.value
-};
-
 const register = async () => {
   try {
-    const { data } = await axios.request(options);
-    router.push('/login');
+    await $fetch('/api/users/registration', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(form.value)
+    });
+
+
+
+    navigateTo('/login');
+
   } catch (error: any) {
     console.error('Ошибка при регистрации:', error);
     alert(`Ошибка при регистрации: ${error.response?.data?.message || error.message}`);
