@@ -36,22 +36,8 @@ const login = async () => {
       body: form.value
     });
     console.log('Успешный вход:', response); // Отладочная информация
+    await navigateTo('/') // Перенаправляем на главную
 
-    try {
-      const sessions = await $fetch('/api/users/sessions');
-      console.log('Session data: ', sessions);
-
-      const currentSession = sessions.find((session: any) => session.is_current);
-      if (currentSession) {
-        localStorage.setItem('session_id', currentSession.session_id);
-        console.log('Current session ID:', localStorage.getItem('session_id'));
-      }
-
-    } catch (error) {
-      console.error('Ошибка', error);
-    }
-
-    navigateTo('/')
   } catch (error: any) {
     console.error('Ошибка при авторизации:', error);
     alert(`Ошибка при авторизации: ${error.response?.data?.message || error.message}`);

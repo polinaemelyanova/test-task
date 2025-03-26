@@ -51,42 +51,43 @@ const sessions = ref<Session[]>([]);
 // Загрузка данных
 const loadData = async () => {
   try {
-    // const sessionId = localStorage.getItem('session_id');
-    // if (!sessionId) {
-    //   return console.log('Пользователь не авторизован.');
-    // }
-
-    const userResponse = await $fetch('/api/users/me')
-    user.value = userResponse
+    // Загрузка данных пользователя
+    const { data: userResponse } = await useFetch('/api/users/me')
+    user.value = userResponse.value
 
     // Загрузка сессий
-    const sessionsResponse = await $fetch('/api/users/sessions')
-    sessions.value = sessionsResponse
+    const { data: sessionsResponse } = await useFetch('/api/users/sessions')
+    sessions.value = sessionsResponse.value
 
   } catch (error) {
     // Если сессия недействителена, очищается localStorage и перенаправляет на главную страницу
     console.log("Session is not valid: ", error);
-    localStorage.removeItem('session_id');
-    user.value = null;
-    sessions.value = [];
-    navigateTo('/login');
+    user.value = null
+    sessions.value = []
+    // navigateTo('/login');
     handleError(error);
   } finally {
     isLoading.value = false;
   }
 };
 
+onMounted(loadData);
+
+// Удаление сессии
 const deleteSession = async (sessionId: string) => {
   try {
-    console.log(`Attempting to delete session with ID: ${sessionId}`);
-    await $fetch(`/api/users/sessions?session_id=${sessionId}`, {
+    await $fetch('/api/users/sessions', {
       method: 'DELETE',
+      query: { session_id: sessionId },
     });
 
     console.log(`Session with ID: ${sessionId} deleted successfully`);
+
+    // Обновление списка сессиий
     sessions.value = sessions.value.filter(session => session.session_id !== sessionId);
   } catch (error) {
     handleError(error);
+    console.log("Session is not valid: ", error);
   }
 };
 
@@ -99,8 +100,7 @@ const logout = async () => {
     });
 
     user.value = null;
-    sessions.value = [];
-    localStorage.removeItem('session_id'); // удаление session_id после выхода
+    // sessions.value = [];
     console.log('Logged out successfully. Redirecting to login page.');
     navigateTo('/login');
   } catch (error) {
@@ -108,12 +108,6 @@ const logout = async () => {
   }
 };
 
-const getCurrentSessionId = () => {
-  // Метод для получения текущего session_id (например, из cookies или localStorage)
-  const sessionId = localStorage.getItem('session_id') || '';
-  console.log(`Current session ID: ${sessionId}`);
-  return sessionId;
-};
 
 const handleError = (error: unknown) => {
   const message = error instanceof Error ? error.message : 'Произошла ошибка';
@@ -121,8 +115,6 @@ const handleError = (error: unknown) => {
   console.error(error);
 };
 
-
-onMounted(loadData);
 
 </script>
 
