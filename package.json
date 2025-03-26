@@ -12,7 +12,7 @@
     "dependencies": {
         "@prisma/client": "^6.5.0",
         "@scalar/nuxt": "^0.2.205",
-        "axios": "^1.8.3",
+        "axios": "^1.8.4",
         "device-detector-js": "^3.0.3",
         "jsonwebtoken": "^9.0.2",
         "nuxt": "^3.15.4",

@@ -15,6 +15,10 @@
 <script setup lang="ts">
 import FormInput from '@/components/FormInput.vue';
 
+definePageMeta ({
+  middleware: 'auth',
+})
+
 interface Form {
   first_name: string;
   last_name: string;

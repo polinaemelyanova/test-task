@@ -64,7 +64,8 @@ const loadData = async () => {
     console.log("Session is not valid: ", error);
     user.value = null
     sessions.value = []
-    // navigateTo('/login');
+    localStorage.removeItem('session_id');
+    navigateTo('/login');
     handleError(error);
   } finally {
     isLoading.value = false;
@@ -100,7 +101,8 @@ const logout = async () => {
     });
 
     user.value = null;
-    // sessions.value = [];
+    sessions.value = [];
+    localStorage.removeItem('session_id');
     console.log('Logged out successfully. Redirecting to login page.');
     navigateTo('/login');
   } catch (error) {
